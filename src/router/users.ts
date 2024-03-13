@@ -5,6 +5,8 @@ import {
 	deleteUser,
 	updateUser,
 	getRecords,
+	likeRecord,
+	getUserLikes,
 } from "../controllers/users";
 import { isAuthenticated, isValidated, isAccountOwner } from "../middlewares";
 
@@ -22,10 +24,14 @@ import { isAuthenticated, isValidated, isAccountOwner } from "../middlewares";
 
 export default (router: express.Router) => {
 	router.get("/user/records", isAuthenticated, isValidated, getRecords);
+	router.get("/user/likes", isAuthenticated, isValidated, getUserLikes);
+
 	router.get("/user/:userId", isAuthenticated, isValidated, getUser);
 
+	router.patch("/user/likes", isAuthenticated, isValidated, likeRecord);
+
 	router.patch(
-		"/users/:userId",
+		"/user",
 		isAuthenticated,
 		isValidated,
 		isAccountOwner,
@@ -33,7 +39,7 @@ export default (router: express.Router) => {
 	);
 
 	router.delete(
-		"/users/:userId",
+		"/user",
 		isAuthenticated,
 		isValidated,
 		isAccountOwner,

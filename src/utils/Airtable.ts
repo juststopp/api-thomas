@@ -28,6 +28,85 @@ export const getRecords = () => {
 	});
 };
 
+export const getLikedRecords = (userId: string, likes: string[]) => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const records: any = await getRecords();
+			const userTags = await getTags(userId);
+			const fieldsOverride = await getFieldsOverride(userId);
+
+			const likedRecords = new Array();
+			records["records"].forEach((record: any) => {
+				if (
+					likes.find(
+						(like: string) =>
+							like.toLowerCase() == record["id"].toLowerCase()
+					)
+				) {
+					const recordFields: { [key: string]: any } = {};
+
+					if (
+						userTags.find(
+							(userTag: string) =>
+								userTag.toLowerCase() ==
+								record.fields[
+									process.env.AIRTABLE_TAG_FIELD
+								].toLowerCase()
+						)
+					) {
+						for (let [key, value] of Object.entries(
+							record.fields
+						)) {
+							if (
+								process.env.AIRTABLE_DEFAULT_FIELDS.split(
+									", "
+								).find(
+									(field: string) =>
+										field.toLowerCase() == key.toLowerCase()
+								)
+							) {
+								recordFields[key] = value;
+							}
+						}
+					}
+
+					if (
+						fieldsOverride.find(
+							(fieldOverride: any) =>
+								fieldOverride.recordId == record["id"]
+						)
+					) {
+						for (let [key, value] of Object.entries(
+							record["fields"]
+						)) {
+							if (
+								fieldsOverride.find((fieldOverride: any) =>
+									fieldOverride.fields.find(
+										(f: string) =>
+											f.toLowerCase() == key.toLowerCase()
+									)
+								)
+							) {
+								recordFields[key] = value;
+							}
+						}
+					}
+
+					if (Object.keys(recordFields).length > 0) {
+						recordFields["id"] = record["id"];
+						likedRecords.push(recordFields);
+					}
+				}
+			});
+
+			resolve(likedRecords);
+		} catch (error) {
+			logger.log("ERROR", error);
+			reject(error);
+		}
+	});
+};
+
 export const getUserRecords = (userId: string) => {
 	return new Promise(async (resolve, reject) => {
 		try {

@@ -2,7 +2,13 @@ import express from "express";
 
 import { isAuthenticated, isValidated, isAdmin } from "../middlewares";
 
-import { validateUser, listRecords } from "../controllers/admin";
+import {
+	validateUser,
+	listRecords,
+	deleteUser,
+	updateUserTags,
+	updateUserFieldsOverride,
+} from "../controllers/admin";
 
 export default (router: express.Router) => {
 	router.get(
@@ -11,6 +17,30 @@ export default (router: express.Router) => {
 		isValidated,
 		isAdmin,
 		listRecords
+	);
+
+	router.patch(
+		"/admin/users/:userId/fieldsOverride",
+		isAuthenticated,
+		isValidated,
+		isAdmin,
+		updateUserFieldsOverride
+	);
+
+	router.patch(
+		"/admin/users/:userId/tags",
+		isAuthenticated,
+		isValidated,
+		isAdmin,
+		updateUserTags
+	);
+
+	router.delete(
+		"/admin/users/:userId",
+		isAuthenticated,
+		isValidated,
+		isAdmin,
+		deleteUser
 	);
 
 	router.post(
